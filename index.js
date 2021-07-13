@@ -58,7 +58,43 @@ app.get('/football', async (req, res) => {
       .catch(console.error);
 });
 
+app.get('/imdb', (req,res)=>{
+  const query = req.params.query
+ var options = {
+   method: 'GET',
+   url: 'https://imdb8.p.rapidapi.com/auto-complete',
+   params: {q: 'avengers'},
+   headers: {
+     'x-rapidapi-key': '4f5165b78dmshc07357fd5d4f965p1de45djsn448dc4f6c63b',
+     'x-rapidapi-host': 'imdb8.p.rapidapi.com'
+   }
+ };
 
+ axios.request(options).then(function (response) {
+   res.json(response.data)
+ }).catch(function (error) {
+ 	console.error(error);
+ });
+})
+
+app.get('/imdb/:query', (req,res)=>{
+  const query = req.params.query
+ var options = {
+   method: 'GET',
+   url: 'https://imdb8.p.rapidapi.com/auto-complete',
+   params: {q: query},
+   headers: {
+     'x-rapidapi-key': '4f5165b78dmshc07357fd5d4f965p1de45djsn448dc4f6c63b',
+     'x-rapidapi-host': 'imdb8.p.rapidapi.com'
+   }
+ };
+
+ axios.request(options).then(function (response) {
+   res.json(response.data)
+ }).catch(function (error) {
+ 	console.error(error);
+ });
+})
 
 app.get("/songs/:id", (req,res)=>{
     const id = req.params.id
