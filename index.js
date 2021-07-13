@@ -1,8 +1,11 @@
 const express = require("express");
 const app = express();
 const { Pool } = require('pg');
+const axios = require('axios')
+const cheerio = require('cheerio')
+
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: "postgres://ikfkvlxfucqqoz:ac55631aaa353b571c22219bbe578a173188ae9a6dcd9db7cfbe8e3f2ac10c9e@ec2-34-204-128-77.compute-1.amazonaws.com:5432/dfl2ud6092sp5c",
     ssl: {
         rejectUnauthorized: false
     }
@@ -18,14 +21,43 @@ app.get('/db', async (req, res) => {
     try {
       const client = await pool.connect();
       const result = await client.query('SELECT * FROM test_table');
-      const results = { 'results': (result) ? result.rows : null};
-      res.json(results)
+      res.json(result.rows)
       client.release();
     } catch (err) {
       console.error(err);
       res.send("Error " + err);
     }
-  })
+});
+
+app.get('/football', async (req, res) => {
+    const url = 'https://www.premierleague.com/stats/top/players/goals?se=-1&cl=-1&iso=-1&po=-1?se=-1';
+    
+    axios(url)
+      .then(response => {
+        const html = response.data;
+        const $ = cheerio.load(html)
+        const statsTable = $('.statsTableContainer > tr');
+        const topPremierLeagueScorers = [];
+    
+        statsTable.each(function () {
+          const rank = $(this).find('.rank > strong').text();
+          const playerName = $(this).find('.playerName > strong').text();
+          const nationality = $(this).find('.playerCountry').text();
+          const goals = $(this).find('.mainStat').text();
+    
+          topPremierLeagueScorers.push({
+            rank,
+            name: playerName,
+            nationality,
+            goals,
+          });
+        });
+    
+        res.json(topPremierLeagueScorers);
+      })
+      .catch(console.error);
+});
+
 
 
 app.get("/songs/:id", (req,res)=>{
