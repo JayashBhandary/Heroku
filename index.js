@@ -2,7 +2,10 @@ const express = require("express");
 const app = express();
 const { Pool } = require('pg');
 const axios = require('axios')
-const cheerio = require('cheerio')
+const cheerio = require('cheerio');
+const cors = require('cors');
+
+app.use(cors())
 
 const pool = new Pool({
     connectionString: "postgres://ikfkvlxfucqqoz:ac55631aaa353b571c22219bbe578a173188ae9a6dcd9db7cfbe8e3f2ac10c9e@ec2-34-204-128-77.compute-1.amazonaws.com:5432/dfl2ud6092sp5c",
@@ -91,6 +94,26 @@ app.get('/imdb/:query', (req,res)=>{
 
  axios.request(options).then(function (response) {
    res.json(response.data)
+ }).catch(function (error) {
+ 	console.error(error);
+ });
+});
+
+app.get('/imdb/:query/year', (req,res)=>{
+  const query = req.params.query
+ var options = {
+   method: 'GET',
+   url: 'https://imdb8.p.rapidapi.com/auto-complete',
+   params: {q: query},
+   headers: {
+     'x-rapidapi-key': '4f5165b78dmshc07357fd5d4f965p1de45djsn448dc4f6c63b',
+     'x-rapidapi-host': 'imdb8.p.rapidapi.com'
+   }
+ };
+
+ axios.request(options).then(function (response) {
+   res.json(response.data.d)
+   console.log(response.data.d)
  }).catch(function (error) {
  	console.error(error);
  });
